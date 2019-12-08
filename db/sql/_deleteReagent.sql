@@ -1,0 +1,1 @@
+DELETE FROM labdb0_0_4.reagent WHERE id = ?;

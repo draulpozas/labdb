@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./css/style.css">
+    <title>Modificar registro - LabDB 0.0.4</title>
+</head>
+<body>
+    {{header}}
+    <div class="main-container" class="edit-form">
+        <form action="" method="POST" class="edit-form">
+            Nombre: <input type="text" name="name_common" value="{{name_common}}" required><br>
+            Código CAS: <input type="text" name="cas" value="{{cas}}" required><br>
+            Fórmula: <input type="text" name="formula" value="{{formula}}" required><br>
+            Localización: <input type="text" name="locations" value="{{locations}}"><br>
+            Privado: <input type="checkbox" name="private" {{private_checked}} {{private_disabled}}><br>
+            Modo seguro: <input type="checkbox" name="secure" {{secure_checked}}><br>
+            <input type="submit" name="submit" value="Guardar">
+        </form>
+        <div class="secondary-container">
+            <form action="" method="POST">
+                <input type="submit" name="submit" value="Eliminar registro">
+            </form>
+        </div>
+    </div>
+</body>
+</html>

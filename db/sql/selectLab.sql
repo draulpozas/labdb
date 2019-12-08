@@ -1,0 +1,1 @@
+SELECT * FROM labdb0_0_4.laboratory {{where}};
