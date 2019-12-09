@@ -6,12 +6,12 @@ class Reagent{
     //class properties
     private $id;
     private $lab_id;
-    private $name_common;
+    private $name;
     private $formula;
     private $cas;
-    private $locations;
-    private $isPrivate;
-    private $isSecure;
+    private $location;
+    private $private;
+    private $secure;
 
     //construct method. will return false if reagent is unreadable due to nonexistent id or insufficient privileges
     public function __construct($id = null){
@@ -22,16 +22,16 @@ class Reagent{
             }
             $this->id = intval($id);
             $this->lab_id(intval($params[1]));
-            $this->name_common($params[2]);
+            $this->name($params[2]);
             $this->formula($params[3]);
             $this->cas($params[4]);
             if ($_SESSION['lab'] == $params[1] || $params[6] == 0) {
-                $this->locations($params[5]);
+                $this->location($params[5]);
             }else{
-                $this->locations('private');
+                $this->location('private');
             }
-            $this->isPrivate(intval($params[6]));
-            $this->isSecure(intval($params[7]));
+            $this->private(intval($params[6]));
+            $this->secure(intval($params[7]));
         }
     }
 
@@ -47,12 +47,12 @@ class Reagent{
 		return $this->lab_id;
     }
     
-    public function name_common($name_common = null){
-		if ($name_common) {
-            $name_common = strtolower($name_common);
-			$this->name_common = $name_common;
+    public function name($name = null){
+		if ($name) {
+            $name = strtolower($name);
+			$this->name = $name;
 		}
-		return $this->name_common;
+		return $this->name;
     }
     
     public function formula($formula = null){
@@ -69,37 +69,37 @@ class Reagent{
 		return $this->cas;
     }
     
-    public function locations($locations = null){
-		if ($locations) {
-			$this->locations = $locations;
+    public function location($location = null){
+		if ($location) {
+			$this->location = $location;
 		}
-		return $this->locations;
+		return $this->location;
     }
     
-    public function isPrivate($tinyint = null){
+    public function private($tinyint = null){
 		if (isset($tinyint) && is_numeric($tinyint)) {
-			$this->isPrivate = $tinyint > 0;
+			$this->private = $tinyint > 0;
 		}
-		return $this->isPrivate?1:0;
+		return $this->private?1:0;
     }
     
-    public function isSecure($tinyint = null){
+    public function secure($tinyint = null){
 		if (isset($tinyint) && is_numeric($tinyint)) {
-			$this->isSecure = $tinyint > 0;
+			$this->secure = $tinyint > 0;
 		}
-		return $this->isSecure?1:0;
+		return $this->secure?1:0;
     }
     
     //basic methods
     public function save(){
         $params = [
             'lab_id' => $this->lab_id(),
-            'name_common' => $this->name_common(),
+            'name' => $this->name(),
             'formula' => $this->formula(),
             'cas' => $this->cas(),
-            'locations' => $this->locations(),
-            'private' => $this->isPrivate(),
-            'secure' => $this->isSecure(),
+            'location' => $this->location(),
+            'private' => $this->private(),
+            'secure' => $this->secure(),
         ];
 
         if ($_SESSION['role'] == 'admin' && $_SESSION['lab'] == $this->lab_id()) {
@@ -207,12 +207,12 @@ class Reagent{
     
     public static function getListByKeyword($keyword){
         $keyword = strtolower($keyword);
-        $where = "WHERE name_common LIKE '%$keyword%'";
+        $where = "WHERE name LIKE '%$keyword%'";
         $data = Database::selectReagent($where);
 
         /*
         $lab = $_SESSION['lab'];
-        $where = "WHERE (name_systematic LIKE '%$keyword%' OR name_common LIKE '%$keyword%') AND (private = 0 OR lab_id = $lab)";
+        $where = "WHERE (name_systematic LIKE '%$keyword%' OR name LIKE '%$keyword%') AND (private = 0 OR lab_id = $lab)";
         if ($_SESSION['role'] == 'admin') {
             $data = Database::selectReagent($where);
         }else{

@@ -175,7 +175,7 @@ class Database{
         return self::query($file, $replace);
     }
 
-    public static function selectUser($where){
+    public static function selectUser($where = ''){
         $file = 'selectUser.sql';
         $replace = [
             '{{WHERE}}' => $where,
@@ -204,7 +204,7 @@ class Database{
         return self::query($file, $replace);
     }
 
-    public static function selectHistory($where){
+    public static function selectHistory($where = ''){
         $file = 'selectHistory.sql';
         $replace = [
             '{{WHERE}}' => $where,
@@ -234,7 +234,7 @@ class Database{
     }
 
     
-    public static function selectMemberOf($where){
+    public static function selectMemberOf($where = ''){
         $file = 'selectMemberOf.sql';
         $replace = [
             '{{WHERE}}' => $where,
