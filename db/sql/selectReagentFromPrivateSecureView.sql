@@ -1,1 +1,0 @@
-SELECT * FROM labdb0_0_4.user_view {{WHERE}};

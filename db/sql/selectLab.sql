@@ -1,1 +1,1 @@
-SELECT * FROM labdb0_0_4.laboratory {{where}};
+SELECT * FROM labdb.lab {{WHERE}};

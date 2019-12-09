@@ -1,11 +1,11 @@
-UPDATE labdb0_0_4.reagent 
+UPDATE `labdb`.`reagent` 
 SET 
-    lab_id = '{{lab_id}}',
-    name_common = '{{name_common}}',
-    formula = '{{formula}}',
-    CAS = '{{CAS}}',
-    locations = '{{locations}}',
-    private = '{{private}}',
-    secure = '{{secure}}'
+    `lab_id` = '{{lab_id}}',
+    `name` = '{{name}}',
+    `formula` = '{{formula}}',
+    `CAS` = '{{cas}}',
+    `location` = '{{location}}',
+    `private` = '{{private}}',
+    `secure` = '{{secure}}'
 WHERE
-    id = '{{id}}';
+    (`id` = '{{id}}');

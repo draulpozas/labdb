@@ -1,1 +1,1 @@
-SELECT * FROM labdb0_0_4.reagent {{WHERE}};
+SELECT * FROM labdb.reagent {{WHERE}};

@@ -1,0 +1,1 @@
+SELECT * FROM labdb.member_of {{WHERE}};

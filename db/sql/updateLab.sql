@@ -1,4 +1,4 @@
-UPDATE `labdb0_0_4`.`laboratory` 
+UPDATE `labdb`.`lab` 
 SET 
     `name` = '{{name}}',
     `manager` = '{{manager}}',

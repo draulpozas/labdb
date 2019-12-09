@@ -1,1 +1,0 @@
-DELETE FROM labdb0_0_4.laboratory WHERE id = ?;

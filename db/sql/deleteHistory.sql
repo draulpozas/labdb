@@ -1,0 +1,1 @@
+DELETE FROM labdb.history WHERE `search_id` = '{{search_id}}';

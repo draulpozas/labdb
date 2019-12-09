@@ -1,10 +1,9 @@
-INSERT INTO `labdb0_0_4`.`laboratory` (
-    `name`, 
-    `manager`,
+INSERT INTO `labdb`.`lab` (
+	`name`, 
+    `manager`, 
     `manager_email`
-) 
-VALUES (
-    '{{name}}', 
-    '{{manager}}',
+) VALUES (
+	'{{name}}', 
+    '{{manager}}', 
     '{{manager_email}}'
 );

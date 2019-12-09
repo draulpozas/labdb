@@ -1,18 +1,17 @@
-INSERT INTO `labdb0_0_4`.`reagent` (
-    `lab_id`, 
-    `name_common`, 
+INSERT INTO `labdb`.`reagent` (
+	`lab_id`, 
+    `name`, 
     `formula`, 
     `CAS`, 
-    `locations`, 
+    `location`, 
     `private`, 
     `secure`
-) 
-VALUES (
-    '{{lab_id}}', 
-    '{{name_common}}', 
+) VALUES (
+	'{{lab_id}}', 
+    '{{name}}', 
     '{{formula}}', 
-    '{{CAS}}', 
-    '{{locations}}', 
+    '{{cas}}', 
+    '{{location}}', 
     '{{private}}', 
     '{{secure}}'
 );
