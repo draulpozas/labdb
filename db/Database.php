@@ -6,31 +6,58 @@ class Database{
     //connection property
     private static $connection;
 
-    //connection method
+    /**
+    * Connection method. It will connect to the database and assign the new PDO object to the $connection property.
+    */
     private static function connect(){
         try{
-			self::$connection = new PDO(CONN_STRING, DB_USER, DB_PASS);
+            $conn_data = json_decode(file_get_contents(__DIR__."/../config/connection.json"), true);
+            self::$connection = new PDO($conn_data['CONN_STRING'], $conn_data['DB_USER'], $conn_data['DB_PASS']);
 		} catch (PDOException $e){
-			echo "Error al conectar a la base de datos: ".$e->getMessage();
+			echo "Database error: ".$e->getMessage();
 			die();
 		}
     }
 
-    //query method
-    private static function query($file, $replace){
+    /**
+    * Query method. It will use the $connection property to communicate directly with the database.
+    * It receives the .sql path and a replace array for replacing the correspondent values in the predefined query string.
+    * It also allows to specify if the replace array fields should be sanitized or not.
+    */
+    private static function query($file, $replace, $sanitize = false){
 		if (!self::$connection) {
 			self::connect();
-		}
+        }
+        
+        if ($sanitize) {
+            $replace = self::sanitizeReplace($replace);
+        }
 
-		$query = file_get_contents(__DIR__."/sql/$file");
+        $query = file_get_contents(__DIR__."/sql/$file");
         $query = strtr($query, $replace);
         $stm = self::$connection->prepare($query);
 		$stm->execute();
-		return $stm->fetchAll();
+		return $stm->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+    * Basic sanitazing method. Escapes quotes and double quotes.
+    */
+    private static function sanitizeReplace($replace){
+        $final = [];
+        
+        foreach ($replace as $field => $value) {
+            $value = str_replace('\'', '\\\'', $value);
+            $value = str_replace('\"', '\\\"', $value);
+            // $value = str_replace('<', '\<', $value);
+            // $value = str_replace('>', '\>', $value);
+            $final[$field] = $value;
+        }
+        return $final;
     }
 
     //specific methods------------------
-    #laboratory methods
+    #lab methods
     public static function insertLab($params){
         $file = 'insertLab.sql';
         $replace = [
@@ -64,18 +91,12 @@ class Database{
     }
 
     public static function deleteLab($id){
-        if (!self::$connection) {
-			self::connect();
-        }
-        $query = file_get_contents(__DIR__."/sql/_deleteLab.sql");
-        $stm = self::$connection->prepare($query);
-        $stm->bindParam(1, $id);
+        $file = 'deleteLab.sql';
+        $replace = [
+            '{{id}}' => $id,
+        ];
 
-        try{
-            $stm->execute();
-        }catch(PDOException $e){
-            echo "Database error - could not delete: " . $e->getMessage();
-        }
+        return self::query($file, $replace);
     }
 
     #reagent methods
@@ -83,10 +104,10 @@ class Database{
         $file = 'insertReagent.sql';
         $replace = [
             '{{lab_id}}' => $params['lab_id'],
-            '{{name_common}}' => $params['name_common'],
+            '{{name}}' => $params['name'],
             '{{formula}}' => $params['formula'],
-            '{{CAS}}' => $params['cas'],
-            '{{locations}}' => $params['locations'],
+            '{{cas}}' => $params['cas'],
+            '{{location}}' => $params['location'],
             '{{private}}' => $params['private'],
             '{{secure}}' => $params['secure'],
         ];
@@ -98,10 +119,10 @@ class Database{
         $file = 'updateReagent.sql';
         $replace = [
             '{{lab_id}}' => $params['lab_id'],
-            '{{name_common}}' => $params['name_common'],
+            '{{name}}' => $params['name'],
             '{{formula}}' => $params['formula'],
-            '{{CAS}}' => $params['cas'],
-            '{{locations}}' => $params['locations'],
+            '{{cas}}' => $params['cas'],
+            '{{location}}' => $params['location'],
             '{{private}}' => $params['private'],
             '{{secure}}' => $params['secure'],
             '{{id}}' => $id,
@@ -119,38 +140,119 @@ class Database{
         return self::query($file, $replace);
     }
 
-    public static function selectReagentFromSecureView($where = ''){
-        $file = 'selectReagentFromSecureView.sql';
-        $replace = [
-            '{{WHERE}}' => $where,
-        ];
-
-        return self::query($file, $replace);
-    }
-
-    public static function selectReagentFromPrivateView($where = ''){
-        $file = 'selectReagentFromPrivateView.sql';
-        $replace = [
-            '{{WHERE}}' => $where,
-        ];
-
-        return self::query($file, $replace);
-    }
-
     public static function deleteReagent($id){
-        if (!self::$connection) {
-			self::connect();
-        }
-        $query = file_get_contents(__DIR__."/sql/_deleteReagent.sql");
-        $stm = self::$connection->prepare($query);
-        $stm->bindParam(1, $id);
+        $file = 'deleteReagent.sql';
+        $replace = [
+            '{{id}}' => $id,
+        ];
 
-        try{
-            $stm->execute();
-        }catch(PDOException $e){
-            echo "Database error - could not delete: " . $e->getMessage();
-        }
+        return self::query($file, $replace);
     }
+
+    #user methods
+    public static function insertUser($params){
+        $file = 'insertUser.sql';
+        $replace = [
+            '{{username}}' => $params['username'],
+            '{{passwd}}' => $params['passwd'],
+            '{{role}}' => $params['role'],
+            '{{lang}}' => $params['lang'],
+        ];
+
+        return self::query($file, $replace);
+    }
+
+    public static function updateUser($params, $id){
+        $file = 'updateUser.sql';
+        $replace = [
+            '{{username}}' => $params['username'],
+            '{{passwd}}' => $params['passwd'],
+            '{{role}}' => $params['role'],
+            '{{lang}}' => $params['lang'],
+            '{{id}}' => $id,
+        ];
+
+        return self::query($file, $replace);
+    }
+
+    public static function selectUser($where){
+        $file = 'selectUser.sql';
+        $replace = [
+            '{{WHERE}}' => $where,
+        ];
+
+        return self::query($file, $replace);
+    }
+
+    public static function deleteUser($id){
+        $file = 'deleteUser.sql';
+        $replace = [
+            '{{id}}' => $id,
+        ];
+
+        return self::query($file, $replace);
+    }
+
+    #history methods
+    public static function insertHistory($params){
+        $file = 'insertHistory.sql';
+        $replace = [
+            '{{user_id}}' => $params['user_id'],
+            '{{search}}' => $params['search'],
+        ];
+
+        return self::query($file, $replace);
+    }
+
+    public static function selectHistory($where){
+        $file = 'selectHistory.sql';
+        $replace = [
+            '{{WHERE}}' => $where,
+        ];
+
+        return self::query($file, $replace);
+    }
+
+    public static function deleteHistory($search_id){
+        $file = 'deleteHistory.sql';
+        $replace = [
+            '{{search_id}}' => $search_id,
+        ];
+
+        return self::query($file, $replace);
+    }
+
+    #member_of methods
+    public static function insertMemberOf($user_id, $lab_id){
+        $file = 'insertMemberOf.sql';
+        $replace = [
+            '{{user_id}}' => $user_id,
+            '{{lab_id}}' => $lab_id,
+        ];
+
+        return self::query($file, $replace);
+    }
+
+    
+    public static function selectMemberOf($where){
+        $file = 'selectMemberOf.sql';
+        $replace = [
+            '{{WHERE}}' => $where,
+        ];
+
+        return self::query($file, $replace);
+    }
+
+    public static function deleteMemberOf($user_id, $lab_id){
+        $file = 'deleteMemberOf.sql';
+        $replace = [
+            '{{user_id}}' => $user_id,
+            '{{lab_id}}' => $lab_id,
+        ];
+
+        return self::query($file, $replace);
+    }
+
 }
 
  ?>
