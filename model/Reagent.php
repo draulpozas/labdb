@@ -108,11 +108,22 @@ class Reagent{
     }
 
     public function delete(){
-        if ($_SESSION['role'] == 'admin' && $_SESSION['lab'] == $this->lab_id()) {
-            Database::deleteReagent($this->id());
-        }else{
-            echo "Unable to edit row: no permissions.";
+        return Database::deleteReagent($this->id());
+    }
+
+    // other methods
+    public function getHtml(){
+        $html = $this->name() .'<br>';
+        $html .= '{{formula}}: '. $this->formula() .'<br>';
+        $html .= '{{cas}}: '. $this->cas() .'<br>';
+        $html .= '{{lab}}: '. (new Lab($this->lab_id()))->name() .'<br>';
+        if ($this->private() != 0) {
+            $html .= '{{isprivate}}<br>';
         }
+        if ($this->secure() != 0) {
+            $html .= '{{issecure}}<br>';
+        }
+
     }
 
     //static methods
