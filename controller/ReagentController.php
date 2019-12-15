@@ -4,22 +4,23 @@ require_once __DIR__."./../config/autoload.php";
 
 class ReagentController{
     public static function pageNew(){
-        if ($_SESSION['role'] != 'admin') {
-            echo "<script>window.alert(\"No puedes añadir reactivos: no eres administrador.\")</script><a href=\"./\">Volver</a>";
+        $usr = new User($_SESSION['id']);
+        if ($usr->role() != 'admin') {
+            View::infoPage('{{unavailable}}', '{{insufficientpermissions}}');
         }else if ($_POST) {
             $rgt = new Reagent();
             $rgt->lab_id($_SESSION['lab']);
-            $rgt->name_common($_POST['name_common']);
+            $rgt->name($_POST['name']);
             $rgt->formula($_POST['formula']);
             $rgt->cas($_POST['cas']);
-            $rgt->locations($_POST['locations']);
-            $rgt->isPrivate(isset($_POST['private'])?1:0);
-            $rgt->isSecure(isset($_POST['secure'])?1:0);
+            $rgt->location($_POST['location']);
+            $rgt->private(isset($_POST['private'])?1:0);
+            $rgt->secure(isset($_POST['secure'])?1:0);
             $rgt->save();
 
-            echo '<div class="main-container">Guardado. <a href="./">Volver</a></div>';
+            View::infoPage('{{saved}}', $rgt->getHtml());
         }else{
-            View::createReagent();
+            View::newReagent();
         }
     }
     
