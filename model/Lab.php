@@ -12,11 +12,15 @@ class Lab{
     //construct method
     public function __construct($id = null){
         if ($id) {
-            $params = Database::selectLab("where id = $id")[0];
-            $this->name = $params[1];
-            $this->manager = $params[2];
-            $this->manager_email = $params[3];
-            $this->id = $params[0];
+            $data = Database::selectLab("where id = $id");
+            if (!$data) {
+                return false;
+            }
+            $params = $data[0];
+            $this->id = $params['id'];
+            $this->name($params['name']);
+            $this->manager($params['manager']);
+            $this->manager_email($params['manager_email']);
         }
     }
 
@@ -38,8 +42,7 @@ class Lab{
     }
 
     public function manager_email($manager_email = null){
-        if ($manager_email && filter_var($manager_email, FILTER_VALIDATE_EMAIL)){
-            $manager_email = filter_var($manager_email, FILTER_SANITIZE_EMAIL);
+        if ($manager_email){
             $this->manager_email = $manager_email;
         }
         return $this->manager_email;
@@ -64,14 +67,31 @@ class Lab{
         Database::deleteLab($this->id());
     }
 
-    //static methods
-    public static function getList($where = ''){
-        $data = Database::selectLab($where);;
-        $list = [];
+    // other methods
+    public function addUser($user_id){
+        if (new User($user_id)) {
+            return Database::insertMemberOf($user_id, $this->id());
+        } else {
+            return false;
+        }
+    }
 
-        for ($i=0; $i < count($data); $i++) { 
-            $lab = new Lab($data[$i][0]);
-            array_push($list, $lab);
+    public function removeUser($user_id){
+        $usr = new User($user_id);
+        if ($usr && $usr->belongsToLab($this->id())) {
+            return Database::deleteMemberOf($user_id, $this->id());
+        } else {
+            return false;
+        }
+    }
+
+    //static methods
+    public static function getAll(){
+        $data = Database::selectLab();
+
+        $list = [];
+        foreach ($data as $row) {
+            array_push($list, new Lab($row['id']));
         }
 
         return $list;
