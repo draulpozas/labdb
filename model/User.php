@@ -111,6 +111,36 @@ class User{
         return false;
     }
 
+    public function saveSearch($search){
+        $params = [
+            'user_id' => $this->id(),
+            'search' => $search,
+        ];
+
+        return Database::insertHistory($params);
+    }
+
+    public function getSearchHistory(){
+        $where = "WHERE user_id = ". $this->id();
+        $data = Database::selectHistory();
+
+        $list = [];
+        foreach ($data as $row) {
+            array_push($list, ''. $row['search']);
+        }
+
+        return $list;
+    }
+
+    public function deleteSearchHistory(){
+        $where = "WHERE user_id = ". $this->id();
+        $data = Database::selectHistory();
+
+        foreach ($data as $row) {
+            Database::deleteHistory($row['search_id']);
+        }
+    }
+
     public function verify($username, $passwd){
         if ($username == $this->username() && password_verify($passwd, $this->passwd())){
             return $this->id();
@@ -168,6 +198,8 @@ class User{
 
         return $usrs;
     }
+
+
 }
 
  ?>
