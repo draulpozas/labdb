@@ -156,6 +156,18 @@ class User{
         }
         return false;
     }
+
+    public static function getListByLab($lab_id){
+        $where = "WHERE lab_id = $lab_id";
+        $data = Database::selectMemberOf($where);
+
+        $usrs = [];
+        foreach ($data as $row) {
+            array_push($usrs, new User($row['user_id']));
+        }
+
+        return $usrs;
+    }
 }
 
  ?>
