@@ -123,7 +123,20 @@ class Reagent{
         if ($this->secure() != 0) {
             $html .= '{{issecure}}<br>';
         }
+    }
 
+    public function isAvailableToUser($user_id){
+        $available = true;
+        $usr = new User($user_id);
+
+        if ($usr->role() != 'admin' && $this->private()) {
+            $available = false;
+        }
+        if ($this->secure() && !$usr->belongsToLab($this->id())) {
+            $available = false;
+        }
+
+        return $available;
     }
 
     //static methods
