@@ -26,75 +26,69 @@ class ReagentController{
     
     public static function pageSearch(){
         if ($_POST) {
-            $results;
-
-            if ($_POST['b'] == 'Buscar por fórmula') {
-                $results = Reagent::getListByFormula($_POST['formula']);
-            }
-            elseif ($_POST['b'] == 'Buscar por palabra clave') {
-                $results = Reagent::getListByKeyword($_POST['keyword']);
-            }
-            elseif ($_POST['b'] == 'Buscar por código CAS') {
-                $results = Reagent::getListByCAS($_POST['cas']);
+            $rgts = [];
+            if (isset($_POST['formula_search'])) {
+                $rgts = Reagent::getListByFormula($_POST['formula']);
+            } else if (isset($_POST['keyword_search'])) {
+                $rgts = Reagent::getListByKeyword($_POST['keyword']);
+            } else if (isset($_POST['cas_search'])) {
+                $rgts = Reagent::getByCAS($_POST['cas']);
             }
 
-            $items_str = '';
-            for ($i=0; $i < count($results); $i++) { 
-                $rgt = $results[$i];
-                $id = $rgt->id();
-                $name_common = $rgt->name_common();
+            $list = [];
+            foreach ($rgts as $rgt) {
+                $name = $rgt->name();
                 $formula = $rgt->formula();
-                $lab_name = (new Lab($rgt->lab_id()))->name();
-                $locations = $rgt->locations();
-                $cas = trim($rgt->cas());
-                if ($_SESSION['lab'] == $rgt->lab_id()) {
-                    $items_str .= "<li><a href=\"edit.php?id=$id\">$name_common ($formula)</a>, en $lab_name ($locations). <a href=\"https://pubchem.ncbi.nlm.nih.gov/#query=$cas\" target=\"blank\">Ver referencia online.</a><div class=\"structuralDiagram\"><img src=\"http://www.commonchemistry.org/images/structuralDiagrams/$cas.png\"></div></li>";
-                }else{
-                    $items_str .= "<li>$name_common ($formula), en $lab_name ($locations). <a href=\"https://pubchem.ncbi.nlm.nih.gov/#query=$cas\" target=\"blank\">Ver referencia online.</a><div class=\"structuralDiagram\"><img src=\"http://www.commonchemistry.org/images/structuralDiagrams/$cas.png\"></div></li>";
+                $location = '';
+                if ($rgt->isAvailableToUser($_SESSION['id'])) {
+                    array_push($list, '<div class="reagentLine">' . $name .'('. $formula .'): '. $location .'</div>');
+                } else {
+                    array_push($list, '<div class="reagentLine">' . $name .'('. $formula .'): {{cantaccesslocation}}</div>');
                 }
             }
-            View::searchReagent($items_str);
-        }else{
-            View::searchReagent();
+
+            $replace = [
+                '{{results}}' => $list,
+            ];
+
+            View::searchReagent($replace);
+        } else {
+            View::searchReagent(['{{results}}' => '']);
         }
     }
 
     public static function pageEdit($id){
-        $rgt = new Reagent($_GET['id']);
-        if ($_SESSION['role'] != 'admin') {
-            echo "<script>window.alert(\"No puedes editar reactivos: no eres administrador.\")</script><a href=\"./\">Volver</a>";
-        }else if ($_SESSION['lab'] != $rgt->lab_id()) {
-            echo "<script>window.alert(\"No puedes editar reactivos ajenos.\")</script><a href=\"./\">Volver</a>";
-        }else if ($_POST) {
-            if ($_POST['submit'] == 'Guardar') {
-                $rgt = new Reagent($_GET['id']);
-                $rgt->lab_id(intval($_SESSION['lab']));
-                $rgt->name_common($_POST['name_common']);
+        $rgt = new Reagent($id);
+        $usr = new User($_SESSION['id']);
+        if ($_POST) {
+            if ($usr->role() == 'admin' && $rgt->isAvailableToUser($usr->id())) {
+                $rgt->lab_id($_POST['lab_id']);
+                $rgt->name($_POST['name']);
                 $rgt->formula($_POST['formula']);
                 $rgt->cas($_POST['cas']);
-                $rgt->locations($_POST['locations']);
-                $rgt->isPrivate(isset($_POST['private'])?1:0);
-                $rgt->isSecure(isset($_POST['secure'])?1:0);
+                $rgt->location($_POST['location']);
+                $rgt->private(isset($_POST['private'])?1:0);
+                $rgt->secure(isset($_POST['secure'])?1:0);
                 $rgt->save();
-                echo 'Guardado. <a href="./">Volver</a>';
-            }elseif ($_POST['submit'] == 'Eliminar registro') {
-                $rgt = new Reagent($_GET['id']);
-                $rgt->delete();
-                echo 'Eliminado. <a href="./">Volver</a>';
+                View::infoPage();
+            } else {
+                View::infoPage('{{unavailable}}', '{{insufficientpermissions}}');
             }
-        }else{
-            $rgt = new Reagent($id);
-            $replace = [
-                '{{name_common}}' => $rgt->name_common(),
-                '{{cas}}' => $rgt->cas(),
-                '{{formula}}' => $rgt->formula(),
-                '{{locations}}' => $rgt->locations(),
-                '{{private_checked}}' => ($rgt->isPrivate()? 'checked="checked"': ''),
-                '{{private_disabled}}' => ($rgt->lab_id() == $_SESSION['lab']? '': 'disabled=""'),
-                '{{secure_checked}}' => ($rgt->isSecure()? 'checked="checked"': ''),
-            ];
-
-            View::editReagent($replace);
+        } else {
+            if ($usr->role() == 'admin' && $rgt->isAvailableToUser($usr->id())) {
+                $replace = [
+                    '{{lab_id}}' => $rgt->lab_id(),
+                    '{{name}}' => $rgt->name(),
+                    '{{formula}}' => $rgt->formula(),
+                    '{{cas}}' => $rgt->cas(),
+                    '{{location}}' => $rgt->location(),
+                    '{{privatecheck}}' => $rgt->private()?'checked="checked"':'',
+                    '{{securecheck}}' => $rgt->secure()?'checked="checked"':'',
+                ];
+                View::editReagent($replace);
+            } else {
+                View::infoPage('{{unavailable}}', '{{insufficientpermissions}}');
+            }
         }
     }
 }
