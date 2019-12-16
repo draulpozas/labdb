@@ -177,7 +177,7 @@ class Reagent{
     
     public static function getListByKeyword($keyword){
         $keyword = strtolower($keyword);
-        $where = "WHERE name LIKE '%$keyword%' OR formula LIKE '%$keyword%'";           // not sure about this but it was like that when i got here so i didn't change anything
+        $where = "WHERE name LIKE '%$keyword%' OR formula LIKE '%$keyword%'";
         $data = Database::selectReagent($where);
 
         $list = [];
