@@ -1,51 +1,37 @@
 <?php
 
-require_once __DIR__."./../config/autoload.php";
+require_once __DIR__."/../config/autoload.php";
 
 class View{
-    public static function init(){
-        $html = file_get_contents("./index.html");
-
-        $replace = [
-            '{{role}}' => $_SESSION['role'],
-            '{{lab}}' => (new Lab($_SESSION['lab']))->name(),
-        ];
-
-        echo strtr($html, $replace);
-    }
-
-    public static function createReagent(){
-        $html = file_get_contents(__DIR__."./templates/newReagentPage.html");
+    public static function infoPage($title, $text){
+        $html = file_get_contents('templates/infoPage.html');
+        $html = strtr($html, ['{{title}}' => $title, '{{text}}' => $text]);
         $html = self::addHeader($html);
-
+        // TO-DO language replacing
         echo $html;
     }
 
-    public static function searchReagent($items_str = null){
-        $html = file_get_contents(__DIR__."./templates/searchReagentPage.html");
+    public static function newReagent(){
+        $html = file_get_contents('templates/newReagent.html');
         $html = self::addHeader($html);
+        // TO-DO language replacing
+        echo $html;
+    }
 
-        if ($items_str) {
-            $replace = ['{{items}}' => $items_str,];
-        }
-        else{
-            $replace = ['{{items}}' => "-",];
-        }
-        echo strtr($html, $replace);
+    public static function searchReagent($replace){
+        $html = file_get_contents('templates/infoPage.html');
+        $html = strtr($html, $replace);
+        $html = self::addHeader($html);
+        // TO-DO language replacing
+        echo $html;
     }
 
     public static function editReagent($replace){
-        $html = file_get_contents(__DIR__."./templates/editReagentPage.html");
+        $html = file_get_contents('templates/editReagent.html');
+        $html = strtr($html, $replace);
         $html = self::addHeader($html);
-
-        echo strtr($html, $replace);
-    }
-
-    private static function addHeader($html){
-        $header = file_get_contents(__DIR__."./templates/header.html");
-        $header = strtr($header, ['{{role}}' => $_SESSION['role'], '{{lab}}' => (new Lab($_SESSION['lab']))->name(),]);
-
-        return strtr($html, ['{{header}}' => $header]);
+        // TO-DO language replacing
+        echo $html;
     }
 }
  ?>
