@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__."./../config/autoload.php";
+require_once __DIR__."/../config/autoload.php";
 
 class ReagentController{
     public static function pageNew(){
@@ -70,7 +70,7 @@ class ReagentController{
                 $rgt->private(isset($_POST['private'])?1:0);
                 $rgt->secure(isset($_POST['secure'])?1:0);
                 $rgt->save();
-                View::infoPage();
+                View::infoPage('{{saved}}', $rgt->getHtml());
             } else {
                 View::infoPage('{{unavailable}}', '{{insufficientpermissions}}');
             }
