@@ -9,7 +9,7 @@ class ReagentController{
             View::infoPage('{{unavailable}}', '{{insufficientpermissions}}');
         }else if ($_POST) {
             $rgt = new Reagent();
-            $rgt->lab_id($_SESSION['lab']);
+            $rgt->lab_id($_POST['lab']);
             $rgt->name($_POST['name']);
             $rgt->formula($_POST['formula']);
             $rgt->cas($_POST['cas']);
@@ -19,8 +19,17 @@ class ReagentController{
             $rgt->save();
 
             View::infoPage('{{saved}}', $rgt->getHtml());
+            header('location: ..');
         }else{
-            View::newReagent();
+            $laboptions = '';
+            $labs = $usr->getLabs();
+            var_dump($usr);
+
+            foreach ($labs as $lab) {
+                $laboptions .= '<option value="'. $lab->id() .'">'. $lab->name() .'</option> ';
+            }
+
+            View::newReagent(['{{laboptions}}' => $laboptions]);
         }
     }
     

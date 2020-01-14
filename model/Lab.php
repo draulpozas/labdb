@@ -12,7 +12,8 @@ class Lab{
     //construct method
     public function __construct($id = null){
         if ($id) {
-            $data = Database::selectLab("where id = $id");
+            $data = Database::selectLab("WHERE id = $id");
+            var_dump($data);
             if (!$data) {
                 return false;
             }
@@ -88,6 +89,17 @@ class Lab{
     //static methods
     public static function getAll(){
         $data = Database::selectLab();
+
+        $list = [];
+        foreach ($data as $row) {
+            array_push($list, new Lab($row['id']));
+        }
+
+        return $list;
+    }
+
+    public static function getByUser($user_id){
+        $data = Database::selectMemberOf("WHERE user_id = '$user_id'");
 
         $list = [];
         foreach ($data as $row) {

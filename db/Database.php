@@ -36,6 +36,7 @@ class Database{
         $query = file_get_contents(__DIR__."/sql/$file");
         $query = strtr($query, $replace);
         $stm = self::$connection->prepare($query);
+        var_dump($query);
 		$stm->execute();
 		return $stm->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -84,7 +85,7 @@ class Database{
     public static function selectLab($where = ''){
         $file = 'selectLab.sql';
         $replace = [
-            '{{where}}' => $where,
+            '{{WHERE}}' => $where,
         ];
 
         return self::query($file, $replace);

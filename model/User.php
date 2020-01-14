@@ -93,6 +93,7 @@ class User{
 
         $labs = [];
         foreach ($data as $row) {
+            var_dump(new Lab($row['lab_id']));
             array_push($labs, (new Lab($row['lab_id'])));
         }
 
