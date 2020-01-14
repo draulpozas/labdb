@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LabDB</title>
+</head>
+<body>
+    {{header}}
+    <div class="title">{{newreagent}}</div>
+    <div class="content">
+        <form method="post">
+            {{reagentname}}: <input type="text" name="name"><br>
+            {{formula}}: <input type="text" name="formula"><br>
+            {{casnumber}}: <input type="text" name="cas"><br>
+            {{location}}: <input type="text" name="location"><br>
+            {{private}}: <input type="checkbox" name="private"><br>
+            {{secure}}: <input type="checkbox" name="secure"><br>
+            {{lab}}: <select name="lab">
+                {{laboptions}}
+            </select> <br>
+            <input type="submit" value="{{submit}}">
+        </form>
+    </div>
+</body>
+</html>
